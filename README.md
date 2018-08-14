@@ -5,7 +5,7 @@
 When you add/delete new kafka brokers, this script will automate the update of partitions to all topics in the cluster
 Tested on version: kafka-2.11-0.10.1.1
 
-#requirement
+## requirement
 Kafka software installed
 export KAFKA_BIN=[path_to_kafkabin]
 export PATH=$KAFKA_BIN:$PATH
