@@ -68,12 +68,14 @@ else
   exit 0
 fi
 
+count=0
 topics=`sh ${KAFKA_BIN}/kafka-topics.sh --zookeeper localhost:${port} --list`
 
 for topic in `echo ${topics}`
 do
+  ((count++))
   echo "==================================="
-  echo ${topic}
+  echo "[${count}] ${topic}"
 
   create_json
   sh ${KAFKA_BIN}/kafka-reassign-partitions.sh --topics-to-move-json-file ${tmp_dir}/${topic}.json --broker-list "${broker_list}" --generate --zookeeper ${zookeeper_host}:${port} > ${tmp_dir}/proposed_${topic}.json
@@ -83,6 +85,7 @@ do
   then
     cat ${tmp_dir}/proposed_${topic}.json
   else
+    START_SECS=$SECONDS
     sh ${KAFKA_BIN}/kafka-reassign-partitions.sh --reassignment-json-file ${tmp_dir}/run_${topic}.json --execute --zookeeper ${zookeeper_host}:${port}
     while true
     do
@@ -93,7 +96,8 @@ do
       fi
       sleep ${sleep}
     done
-    echo 'balancing completed'
+    RUN_SECS=$((SECONDS-=START_SECS))
+    echo "balancing completed (${RUN_SECS} secs)"
   fi
 
 done
